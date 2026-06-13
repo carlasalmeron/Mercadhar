@@ -56,7 +56,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.update(id, body.get("name"), body.get("description")));
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @SecurityRequirement(name = "Bearer Auth")
     @Operation(summary = "Delete a category (Admin only)")
