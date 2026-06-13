@@ -1,4 +1,4 @@
-# Mercadhar Backend - API REST
+# Mercadhar
 
 Mercadhar es una plataforma digital de venta de productos típicos venezolanos, diseñada para conectar a la comunidad venezolana en el exterior y a entusiastas gastronómicos con un catálogo de productos tradicionales. La plataforma gestiona el flujo completo desde la exploración de productos, selección de slots de entrega, hasta el procesamiento de pedidos por parte de clientes y su preparación por parte de administradores.
 
