@@ -1,0 +1,90 @@
+.page {
+  padding: 40px 24px;
+  background: #f8f8f8;
+  min-height: calc(100vh - 64px);
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.orderId {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.pending { background: #fff3cd; color: #856404; }
+.confirmed { background: #cce5ff; color: #004085; }
+.ready { background: #d4edda; color: #155724; }
+.completed { background: #e2e3e5; color: #383d41; }
+.cancelled { background: #f8d7da; color: #721c24; }
+
+.cardBody {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.cardFooter {
+  padding: 12px 20px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.select {
+  padding: 8px 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.loading, .empty {
+  text-align: center;
+  padding: 60px 0;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  color: #cc0001;
+  padding: 60px 0;
+}

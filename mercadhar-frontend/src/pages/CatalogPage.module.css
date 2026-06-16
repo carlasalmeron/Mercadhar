@@ -1,0 +1,70 @@
+.page {
+  background: #f8f8f8;
+  min-height: calc(100vh - 64px);
+  padding: 40px 24px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.subtitle {
+  color: #666;
+  margin: 8px 0 32px;
+  font-size: 1.1rem;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.filterBtn {
+  padding: 8px 16px;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.filterBtn:hover {
+  border-color: #cc0001;
+  color: #cc0001;
+}
+
+.filterBtn.active {
+  background: #cc0001;
+  border-color: #cc0001;
+  color: white;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.loading, .empty {
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+  padding: 60px 0;
+}
+
+.error {
+  text-align: center;
+  color: #cc0001;
+  padding: 60px 0;
+}

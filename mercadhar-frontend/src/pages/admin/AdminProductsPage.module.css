@@ -1,0 +1,23 @@
+.page {
+  padding: 40px 24px;
+  background: #f8f8f8;
+  min-height: calc(100vh - 64px);
+}
+
+.container { max-width: 1200px; margin: 0 auto; }
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.subtitle { color: #666; margin-bottom: 32px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.loading, .error { text-align: center; padding: 60px 0; color: #666; }
