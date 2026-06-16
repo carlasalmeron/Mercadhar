@@ -1,13 +1,7 @@
--- ================================
--- Fix admin password (admin123)
--- ================================
 UPDATE users
 SET password = '$2a$10$C.7CjDcnNxNhXJvqTGy4e.UyWXfMapnbsxu38ckYzOE9YS87aep16'
 WHERE email = 'admin@mercadhar.com';
 
--- ================================
--- Categories
--- ================================
 INSERT INTO categories (name, description) VALUES
 ('Harinas y granos', 'Harinas, caraotas, lentejas y más'),
 ('Bebidas', 'Refrescos, jugos y maltas venezolanas'),
@@ -16,9 +10,7 @@ INSERT INTO categories (name, description) VALUES
 ('Salsas y condimentos', 'Salsas, aliños y especias venezolanas'),
 ('Dulces y postres', 'Dulces típicos venezolanos');
 
--- ================================
--- Products
--- ================================
+
 INSERT INTO products (name, description, price, image_url, available, category_id) VALUES
 
 -- Harinas y granos
@@ -69,9 +61,7 @@ INSERT INTO products (name, description, price, image_url, available, category_i
 ('Golfeado', 'Pan dulce venezolano con papelón 2 unidades', 3.00, NULL, true,
     (SELECT id FROM categories WHERE name = 'Dulces y postres'));
 
--- ================================
 -- Time slots de ejemplo
--- ================================
 INSERT INTO time_slots (date, start_time, end_time, max_orders, current_orders, available) VALUES
 ('2026-06-17', '10:00', '11:00', 5, 0, true),
 ('2026-06-17', '11:00', '12:00', 5, 0, true),

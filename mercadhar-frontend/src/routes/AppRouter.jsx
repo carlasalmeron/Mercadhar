@@ -6,6 +6,7 @@ import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import CatalogPage from '../pages/CatalogPage';
 import OrderPage from '../pages/OrderPage';
+import OrderSuccessPage from '../pages/OrderSuccessPage';
 import AdminProductsPage from '../pages/admin/AdminProductsPage';
 import AdminOrdersPage from '../pages/admin/AdminOrdersPage';
 
@@ -24,6 +25,8 @@ const AppRouter = () => {
             <OrderPage />
           </ProtectedRoute>
         } />
+
+        <Route path="/order/success" element={<OrderSuccessPage />} />
 
         <Route path="/admin/products" element={
           <ProtectedRoute requireAdmin>
