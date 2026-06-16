@@ -30,7 +30,6 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    //User Endpoints
     @PostMapping
     @Operation(summary = "Create a new order (authenticated users)")
     public ResponseEntity<OrderResponse> create(
@@ -57,7 +56,6 @@ public class OrderController {
                         userDetails.getUsername()));
     }
 
-    //Admin Endpoints
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(summary = "Get all orders (Admin only)")

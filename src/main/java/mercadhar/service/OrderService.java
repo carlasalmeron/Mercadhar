@@ -59,7 +59,7 @@ public class OrderService {
         order.setUser(user);
         order.setTimeSlot(timeSlot);
         order.setOrderType(request.getOrderType());
-        order.setDeliveryAddress(request.getDeliveryAddress());
+        order.setDeliveryAddress(request.getDeliveryAddress() != null ? request.getDeliveryAddress() : "Recogida en tienda");
         order.setNotes(request.getNotes());
 
         List<OrderItem> items = new ArrayList<>();
