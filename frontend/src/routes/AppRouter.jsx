@@ -9,6 +9,7 @@ import OrderPage from '../pages/OrderPage';
 import OrderSuccessPage from '../pages/OrderSuccessPage';
 import AdminProductsPage from '../pages/admin/AdminProductsPage';
 import AdminOrdersPage from '../pages/admin/AdminOrdersPage';
+import AdminTimeSlotsPage from '../pages/admin/AdminTimeSlotsPage';
 
 const AppRouter = () => {
   return (
@@ -38,6 +39,10 @@ const AppRouter = () => {
           <ProtectedRoute requireAdmin>
             <AdminOrdersPage />
           </ProtectedRoute>
+        } />
+
+        <Route path="/admin/timeslots" element={
+          <ProtectedRoute requireAdmin><AdminTimeSlotsPage /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>

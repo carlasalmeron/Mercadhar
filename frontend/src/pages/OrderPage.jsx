@@ -27,7 +27,14 @@ const OrderPage = () => {
   const [error, setError] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
-  // ── Cart helpers ──────────────────────────────────────────
+  useEffect(() => {
+      const preselected = location.state?.preselectedProduct;
+      if (preselected) {
+        setCart([{ product: preselected, quantity: 1 }]);
+        navigate(location.pathname, { replace: true, state: {} });
+      }
+    }, []);
+
   const addToCart = (product) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.product.id === product.id);
@@ -59,7 +66,6 @@ const OrderPage = () => {
     (sum, i) => sum + i.product.price * i.quantity, 0
   );
 
-  // ── Step 1 → 2 ────────────────────────────────────────────
   const handleNextStep = async () => {
     if (step === 0) {
       if (cart.length === 0) {
@@ -85,7 +91,6 @@ const OrderPage = () => {
     }
   };
 
-  // ── Load time slots ────────────────────────────────────────
   const handleDateChange = async (date) => {
     setSelectedDate(date);
     setSelectedSlot(null);
@@ -98,7 +103,6 @@ const OrderPage = () => {
     }
   };
 
-  // ── Submit order ───────────────────────────────────────────
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError('');
@@ -123,13 +127,11 @@ const OrderPage = () => {
     }
   };
 
-  // ── Category filter ────────────────────────────────────────
   const categories = ['all', ...new Set(products.map((p) => p.categoryName))];
   const filteredProducts = categoryFilter === 'all'
     ? products
     : products.filter((p) => p.categoryName === categoryFilter);
 
-  // ── Render ─────────────────────────────────────────────────
   return (
     <div className={styles.page}>
       <div className={styles.container}>
@@ -155,7 +157,6 @@ const OrderPage = () => {
 
         {error && <p className={styles.error}>{error}</p>}
 
-        {/* ── STEP 0: Products ── */}
         {step === 0 && (
           <div className={styles.stepContent}>
             <div className={styles.layout}>
@@ -176,20 +177,14 @@ const OrderPage = () => {
                 {isLoading ? (
                   <p className={styles.loading}>Cargando productos...</p>
                 ) : (
-                  <div className={styles.grid}>
-                    {filteredProducts.map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        onAddToOrder={addToCart}
-                        onToggleAvailability={() => {}}
-                      />
-                    ))}
-                  </div>
+                  <ProductList
+                    products={filteredProducts}
+                    onAddToOrder={addToCart}
+                    emptyMessage="No hay productos disponibles."
+                  />
                 )}
               </div>
 
-              {/* Cart sidebar */}
               <div className={styles.cartSidebar}>
                 <h2 className={styles.cartTitle}>Tu pedido</h2>
                 {cart.length === 0 ? (
@@ -246,7 +241,6 @@ const OrderPage = () => {
           </div>
         )}
 
-        {/* ── STEP 1: Delivery ── */}
         {step === 1 && (
           <div className={styles.stepContent}>
             <div className={styles.deliveryLayout}>
@@ -330,7 +324,6 @@ const OrderPage = () => {
                 </div>
               </div>
 
-              {/* Order summary */}
               <div className={styles.cartSidebar}>
                 <h2 className={styles.cartTitle}>Resumen</h2>
                 <div className={styles.cartItems}>
@@ -362,7 +355,6 @@ const OrderPage = () => {
           </div>
         )}
 
-        {/* ── STEP 2: Confirm ── */}
         {step === 2 && (
           <div className={styles.stepContent}>
             <div className={styles.confirmLayout}>

@@ -1,0 +1,73 @@
+.footer {
+  background: #1a1a1a;
+  color: #ccc;
+  margin-top: auto;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px 32px;
+  display: flex;
+  gap: 48px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #cc0001;
+}
+
+.tagline {
+  font-size: 0.9rem;
+  color: #999;
+  max-width: 220px;
+}
+
+.links {
+  display: flex;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.columnTitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.link {
+  font-size: 0.9rem;
+  color: #999;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: #cc0001;
+}
+
+.bottom {
+  border-top: 1px solid #333;
+  text-align: center;
+  padding: 16px 24px;
+  font-size: 0.8rem;
+  color: #666;
+}

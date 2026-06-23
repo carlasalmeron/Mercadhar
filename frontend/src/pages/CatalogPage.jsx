@@ -25,6 +25,14 @@ const CatalogPage = () => {
     }
   };
 
+  const handleAddToOrder = (product) => {
+    if (!isAuthenticated()) {
+      navigate('/login');
+      return;
+    }
+    navigate('/order', { state: { preselectedProduct: product } });
+  };
+
   if (isLoading) return <div className={styles.loading}>Cargando productos...</div>;
   if (error) return <div className={styles.error}>{error}</div>;
 
@@ -32,15 +40,15 @@ const CatalogPage = () => {
     <div className={styles.page}>
       <div className={styles.container}>
         <h1 className={styles.title}>Catálogo de productos</h1>
-        <p className={styles.subtitle}>
-          Productos venezolanos de calidad 🇻🇪
-        </p>
+        <p className={styles.subtitle}>Productos venezolanos de calidad 🇻🇪</p>
 
         <div className={styles.filters}>
           {categories.map((cat) => (
             <button
               key={cat}
-              className={`${styles.filterBtn} ${categoryFilter === cat ? styles.active : ''}`}
+              className={`${styles.filterBtn} ${
+                  categoryFilter === cat ? styles.active : ''
+              }`}
               onClick={() => setCategoryFilter(cat)}
             >
               {cat === 'all' ? 'Todos' : cat}
@@ -48,20 +56,12 @@ const CatalogPage = () => {
           ))}
         </div>
 
-        {filteredProducts.length === 0 ? (
-          <p className={styles.empty}>No hay productos disponibles.</p>
-        ) : (
-          <div className={styles.grid}>
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onToggleAvailability={handleToggleAvailability}
-                onAddToOrder={() => {}}
-              />
-            ))}
-          </div>
-        )}
+        <ProductList
+          products={filteredProducts}
+          onAddToOrder={handleAddToOrder}
+          onToggleAvailability={handleToggleAvailability}
+          emptyMessage="No hay productos disponibles en esta categoría."
+        />
       </div>
     </div>
   );

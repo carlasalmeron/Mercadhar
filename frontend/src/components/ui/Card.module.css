@@ -1,0 +1,33 @@
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+}
+
+.header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1a1a1a;
+}
+
+.body {
+  padding: 20px;
+}
+
+.footer {
+  padding: 14px 20px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+}
