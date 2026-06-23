@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,30 +33,33 @@ public class Order {
     @JoinColumn(name = "time_slot_id", nullable = false)
     private TimeSlot timeSlot;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> items;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<OrderItem> items = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private OrderStatus status = OrderStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderType orderType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OrderStatus status;
-
     private String deliveryAddress;
-
     private String notes;
 
     @Column(nullable = false)
     private BigDecimal totalAmount;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-        this.status = OrderStatus.PENDING;
+        if (this.createdAt == null) this.createdAt = LocalDateTime.now();
+        if (this.status == null) this.status = OrderStatus.PENDING;
     }
 }

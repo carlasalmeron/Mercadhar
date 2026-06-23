@@ -50,9 +50,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/timeslots/**").permitAll()
-                        .requestMatchers("/api/products/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/api/categories/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/api/timeslots/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST,   "/api/products/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT,    "/api/products/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PATCH,  "/api/products/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST,   "/api/categories/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT,    "/api/categories/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST,   "/api/timeslots/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT,    "/api/timeslots/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/timeslots/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/orders/**").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -69,7 +76,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5174"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://localhost:5174"
+        ));
         configuration.setAllowedMethods(
                 List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

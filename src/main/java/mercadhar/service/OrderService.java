@@ -1,5 +1,6 @@
 package mercadhar.service;
 
+import jakarta.transaction.Transactional;
 import mercadhar.dto.order.OrderItemRequest;
 import mercadhar.dto.order.OrderItemResponse;
 import mercadhar.dto.order.OrderRequest;
@@ -36,42 +37,47 @@ public class OrderService {
         this.timeSlotService = timeSlotService;
     }
 
+    @Transactional
     public OrderResponse create(OrderRequest request, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found: " + userEmail));
+                        "No se encontró al usuario: " + userEmail));
 
         TimeSlot timeSlot = timeSlotService.findById(request.getTimeSlotId());
 
         if (!timeSlot.isAvailable()) {
             throw new IllegalArgumentException(
-                    "This time slot is not available");
+                    "Esta franja horaria no está disponible");
         }
 
         if (request.getOrderType() == OrderType.DELIVERY &&
                 (request.getDeliveryAddress() == null ||
                         request.getDeliveryAddress().isBlank())) {
             throw new IllegalArgumentException(
-                    "Delivery address is required for delivery orders");
+                    "Se requiere una dirección de entrega para los pedidos con entrega a domicilio");
         }
 
         Order order = new Order();
         order.setUser(user);
         order.setTimeSlot(timeSlot);
         order.setOrderType(request.getOrderType());
-        order.setDeliveryAddress(request.getDeliveryAddress() != null ? request.getDeliveryAddress() : "Recogida en tienda");
+        order.setStatus(OrderStatus.PENDING);
+        order.setCreatedAt(java.time.LocalDateTime.now());
+        order.setDeliveryAddress(
+                request.getDeliveryAddress() != null && !request.getDeliveryAddress().isBlank()
+                        ? request.getDeliveryAddress()
+                        : "Recogida en tienda");
         order.setNotes(request.getNotes());
 
         List<OrderItem> items = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
         for (OrderItemRequest itemRequest : request.getItems()) {
-            Product product = productService
-                    .findProductById(itemRequest.getProductId());
+            Product product = productService.findProductById(itemRequest.getProductId());
 
             if (!product.isAvailable()) {
                 throw new IllegalArgumentException(
-                        "Product not available: " + product.getName());
+                        "El producto no está disponible: " + product.getName());
             }
 
             OrderItem item = new OrderItem();
@@ -95,45 +101,47 @@ public class OrderService {
         return toResponse(saved);
     }
 
+    @Transactional
     public List<OrderResponse> findMyOrders(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found: " + userEmail));
+                        "No se encontró al usuario: " + userEmail));
         return orderRepository.findByUserId(user.getId())
                 .stream().map(this::toResponse).toList();
     }
 
+    @Transactional
     public List<OrderResponse> findAll() {
         return orderRepository.findAll()
                 .stream().map(this::toResponse).toList();
     }
 
+    @Transactional
     public OrderResponse updateStatus(Long orderId,
                                       OrderStatus status,
                                       String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found: " + userEmail));
+                        "No se encontró al usuario: " + userEmail));
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Order not found with id: " + orderId));
+                        "No se encontró el pedido con el ID: " + orderId));
 
         if (user.getRole() == Role.ROLE_USER) {
             if (!order.getUser().getId().equals(user.getId())) {
                 throw new UnauthorizedException(
-                        "You can only manage your own orders");
+                        "Solo puedes gestionar tus propios pedidos");
             }
             if (status != OrderStatus.CANCELLED) {
                 throw new UnauthorizedException(
-                        "Users can only cancel orders");
+                        "Los usuarios solo pueden cancelar pedidos");
             }
         }
 
         if (status == OrderStatus.CANCELLED &&
                 order.getStatus() != OrderStatus.CANCELLED) {
-            timeSlotService.decrementOrders(
-                    order.getTimeSlot().getId());
+            timeSlotService.decrementOrders(order.getTimeSlot().getId());
         }
 
         order.setStatus(status);
