@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import mercadhar.dto.PagedResponse;
 import mercadhar.dto.order.OrderRequest;
 import mercadhar.dto.order.OrderResponse;
 import mercadhar.model.enums.OrderStatus;
@@ -32,9 +33,17 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "Create a new order (authenticated users)")
-    public ResponseEntity<OrderResponse> create(
-            @Valid @RequestBody OrderRequest request, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.create(request, userDetails.getUsername()));
+    public ResponseEntity<?> create(
+            @Valid @RequestBody OrderRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            OrderResponse response = orderService.create(request, userDetails.getUsername());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno en el servidor: " + e.getMessage());
+        }
     }
 
     @GetMapping("/my-orders")
@@ -50,17 +59,18 @@ public class OrderController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(
-                orderService.updateStatus(
-                        id,
-                        OrderStatus.CANCELLED,
+                orderService.updateStatus(id, OrderStatus.CANCELLED,
                         userDetails.getUsername()));
     }
 
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @Operation(summary = "Get all orders (Admin only)")
-    public ResponseEntity<List<OrderResponse>> getAll() {
-        return ResponseEntity.ok(orderService.findAll());
+    @Operation(summary = "Get all orders paged (Admin only)")
+    public ResponseEntity<PagedResponse<OrderResponse>> getAll(
+            @RequestParam(defaultValue = "0")    int page,
+            @RequestParam(defaultValue = "10")   int size,
+            @RequestParam(defaultValue = "ALL")  String status) {
+        return ResponseEntity.ok(orderService.findAllPaged(page, size, status));
     }
 
     @PatchMapping("/{id}/status")
@@ -72,9 +82,6 @@ public class OrderController {
             @AuthenticationPrincipal UserDetails userDetails) {
         OrderStatus status = OrderStatus.valueOf(body.get("status"));
         return ResponseEntity.ok(
-                orderService.updateStatus(
-                        id,
-                        status,
-                        userDetails.getUsername()));
+                orderService.updateStatus(id, status, userDetails.getUsername()));
     }
 }

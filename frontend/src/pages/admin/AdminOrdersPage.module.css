@@ -1,32 +1,76 @@
 .page {
-  padding: 40px 24px;
+  padding: 40px 24px 80px;
   background: #f8f8f8;
   min-height: calc(100vh - 64px);
 }
 
-.container {
-  max-width: 900px;
-  margin: 0 auto;
+.container { max-width: 900px; margin: 0 auto; }
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.title {
-  font-size: 1.8rem;
-  font-weight: 800;
+.title { font-size: 1.8rem; font-weight: 800; color: #1a1a1a; }
+.count { color: #888; font-size: 0.95rem; }
+
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
   margin-bottom: 24px;
 }
 
-.list {
+.filterBtn {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 20px;
+  background: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.15s;
 }
+
+.filterBtn:hover { border-color: #cc0001; color: #cc0001; }
+
+.filterActive {
+  background: #cc0001;
+  border-color: #cc0001;
+  color: white;
+}
+
+.filterActive:hover { color: white; }
+
+.filterCount {
+  background: rgba(0,0,0,0.1);
+  border-radius: 20px;
+  padding: 1px 7px;
+  font-size: 0.75rem;
+}
+
+.filterActive .filterCount { background: rgba(255,255,255,0.25); }
+
+.list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
 
 .card {
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
 }
+
+.card:hover { border-color: #cc0001; }
 
 .cardHeader {
   display: flex;
@@ -36,10 +80,7 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
-.orderId {
-  font-weight: 700;
-  font-size: 1.05rem;
-}
+.orderId { font-weight: 700; font-size: 1.05rem; }
 
 .badge {
   padding: 4px 12px;
@@ -48,9 +89,9 @@
   font-weight: 600;
 }
 
-.pending { background: #fff3cd; color: #856404; }
+.pending   { background: #fff3cd; color: #856404; }
 .confirmed { background: #cce5ff; color: #004085; }
-.ready { background: #d4edda; color: #155724; }
+.ready     { background: #d4edda; color: #155724; }
 .completed { background: #e2e3e5; color: #383d41; }
 .cancelled { background: #f8d7da; color: #721c24; }
 
@@ -75,16 +116,50 @@
   border-radius: 8px;
   font-size: 0.9rem;
   cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
 }
 
-.loading, .empty {
-  text-align: center;
-  padding: 60px 0;
-  color: #666;
+.select:focus { border-color: #cc0001; }
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.error {
-  text-align: center;
-  color: #cc0001;
-  padding: 60px 0;
+.pageBtn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.15s;
 }
+
+.pageBtn:hover:not(:disabled) { border-color: #cc0001; color: #cc0001; }
+.pageBtn:disabled { opacity: 0.35; cursor: default; }
+
+.pageBtnActive {
+  background: #cc0001;
+  border-color: #cc0001;
+  color: white;
+}
+
+.pageBtnActive:hover { color: white; }
+
+.pageInfo {
+  margin-left: 8px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.loading, .empty { text-align: center; padding: 60px 0; color: #666; }
+.error { text-align: center; color: #cc0001; padding: 60px 0; }

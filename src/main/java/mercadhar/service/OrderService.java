@@ -1,6 +1,7 @@
 package mercadhar.service;
 
 import jakarta.transaction.Transactional;
+import mercadhar.dto.PagedResponse;
 import mercadhar.dto.order.OrderItemRequest;
 import mercadhar.dto.order.OrderItemResponse;
 import mercadhar.dto.order.OrderRequest;
@@ -13,9 +14,13 @@ import mercadhar.model.enums.OrderType;
 import mercadhar.model.enums.Role;
 import mercadhar.repository.OrderRepository;
 import mercadhar.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,20 +46,19 @@ public class OrderService {
     public OrderResponse create(OrderRequest request, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "No se encontró al usuario: " + userEmail));
+                        "No se ha encontrado el usuario: " + userEmail));
 
         TimeSlot timeSlot = timeSlotService.findById(request.getTimeSlotId());
 
         if (!timeSlot.isAvailable()) {
-            throw new IllegalArgumentException(
-                    "Esta franja horaria no está disponible");
+            throw new IllegalArgumentException("Esta franja horaria no está disponible");
         }
 
         if (request.getOrderType() == OrderType.DELIVERY &&
                 (request.getDeliveryAddress() == null ||
                         request.getDeliveryAddress().isBlank())) {
             throw new IllegalArgumentException(
-                    "Se requiere una dirección de entrega para los pedidos con entrega a domicilio");
+                    "Es necesario indicar una dirección de entrega para los pedidos con envío a domicilio");
         }
 
         Order order = new Order();
@@ -62,7 +66,7 @@ public class OrderService {
         order.setTimeSlot(timeSlot);
         order.setOrderType(request.getOrderType());
         order.setStatus(OrderStatus.PENDING);
-        order.setCreatedAt(java.time.LocalDateTime.now());
+        order.setCreatedAt(LocalDateTime.now());
         order.setDeliveryAddress(
                 request.getDeliveryAddress() != null && !request.getDeliveryAddress().isBlank()
                         ? request.getDeliveryAddress()
@@ -77,7 +81,7 @@ public class OrderService {
 
             if (!product.isAvailable()) {
                 throw new IllegalArgumentException(
-                        "El producto no está disponible: " + product.getName());
+                        "Producto no disponible: " + product.getName());
             }
 
             OrderItem item = new OrderItem();
@@ -88,8 +92,7 @@ public class OrderService {
             items.add(item);
 
             total = total.add(
-                    product.getPrice().multiply(
-                            BigDecimal.valueOf(itemRequest.getQuantity())));
+                    product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
         }
 
         order.setItems(items);
@@ -105,37 +108,53 @@ public class OrderService {
     public List<OrderResponse> findMyOrders(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "No se encontró al usuario: " + userEmail));
+                        "No se ha encontrado el usuario: " + userEmail));
         return orderRepository.findByUserId(user.getId())
                 .stream().map(this::toResponse).toList();
     }
 
     @Transactional
-    public List<OrderResponse> findAll() {
-        return orderRepository.findAll()
+    public PagedResponse<OrderResponse> findAllPaged(int page, int size, String status) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> orderPage;
+
+        if (status != null && !status.isBlank() && !status.equalsIgnoreCase("ALL")) {
+            OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
+            orderPage = orderRepository.findByStatusOrderByCreatedAtDesc(orderStatus, pageable);
+        } else {
+            orderPage = orderRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+
+        List<OrderResponse> content = orderPage.getContent()
                 .stream().map(this::toResponse).toList();
+
+        return PagedResponse.<OrderResponse>builder()
+                .content(content)
+                .currentPage(orderPage.getNumber())
+                .totalPages(orderPage.getTotalPages())
+                .totalElements(orderPage.getTotalElements())
+                .pageSize(orderPage.getSize())
+                .first(orderPage.isFirst())
+                .last(orderPage.isLast())
+                .build();
     }
 
     @Transactional
-    public OrderResponse updateStatus(Long orderId,
-                                      OrderStatus status,
-                                      String userEmail) {
+    public OrderResponse updateStatus(Long orderId, OrderStatus status, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "No se encontró al usuario: " + userEmail));
+                        "No se ha encontrado el usuario: " + userEmail));
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "No se encontró el pedido con el ID: " + orderId));
+                        "No se ha encontrado el pedido con el ID: " + orderId));
 
         if (user.getRole() == Role.ROLE_USER) {
             if (!order.getUser().getId().equals(user.getId())) {
-                throw new UnauthorizedException(
-                        "Solo puedes gestionar tus propios pedidos");
+                throw new UnauthorizedException("Solo puedes gestionar tus propios pedidos");
             }
             if (status != OrderStatus.CANCELLED) {
-                throw new UnauthorizedException(
-                        "Los usuarios solo pueden cancelar pedidos");
+                throw new UnauthorizedException("Los usuarios solo pueden cancelar los pedidos");
             }
         }
 

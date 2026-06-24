@@ -1,20 +1,28 @@
 import { useState, useEffect } from 'react';
 import { orderApi } from '../../api/orderApi';
 import { formatDate, formatTime, translateStatus } from '../../utils/formatters';
-import Button from '../../components/ui/Button';
 import styles from './AdminOrdersPage.module.css';
 
 const STATUS_OPTIONS = ['PENDING', 'CONFIRMED', 'READY', 'COMPLETED', 'CANCELLED'];
+const STATUS_FILTERS = ['ALL', ...STATUS_OPTIONS];
+const PAGE_SIZE = 10;
 
 const AdminOrdersPage = () => {
-  const [orders, setOrders] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [allOrders, setAllOrders]   = useState([]);   // todos los pedidos en memoria
+  const [isLoading, setIsLoading]   = useState(true);
+  const [error, setError]           = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [currentPage, setCurrentPage]   = useState(1);
 
   const fetchOrders = async () => {
+    setIsLoading(true);
     try {
       const { data } = await orderApi.getAll();
-      setOrders(data);
+      // Más reciente primero
+      const sorted = [...data].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setAllOrders(sorted);
     } catch {
       setError('Error al cargar los pedidos');
     } finally {
@@ -22,32 +30,69 @@ const AdminOrdersPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  useEffect(() => { fetchOrders(); }, []);
+
+  // Volver a página 1 cuando cambia el filtro
+  useEffect(() => { setCurrentPage(1); }, [statusFilter]);
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       await orderApi.updateStatus(orderId, newStatus);
-      fetchOrders();
+      // Actualiza solo el pedido afectado en memoria (sin refetch completo)
+      setAllOrders((prev) =>
+        prev.map((o) => o.id === orderId ? { ...o, status: newStatus } : o)
+      );
     } catch {
       alert('Error al actualizar el estado');
     }
   };
 
+  // ── Filtrado y paginación (solo en frontend) ──────────────
+  const filtered = statusFilter === 'ALL'
+    ? allOrders
+    : allOrders.filter((o) => o.status === statusFilter);
+
+  const totalPages  = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage    = Math.min(currentPage, totalPages);
+  const pageOrders  = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   if (isLoading) return <div className={styles.loading}>Cargando pedidos...</div>;
-  if (error) return <div className={styles.error}>{error}</div>;
+  if (error)     return <div className={styles.error}>{error}</div>;
 
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <h1 className={styles.title}>Gestión de pedidos</h1>
 
-        {orders.length === 0 ? (
-          <p className={styles.empty}>No hay pedidos todavía.</p>
+        {/* Cabecera */}
+        <div className={styles.header}>
+          <h1 className={styles.title}>Gestión de pedidos</h1>
+          <span className={styles.count}>{filtered.length} pedido{filtered.length !== 1 ? 's' : ''}</span>
+        </div>
+
+        {/* Filtros de estado */}
+        <div className={styles.filters}>
+          {STATUS_FILTERS.map((s) => (
+            <button
+              key={s}
+              className={`${styles.filterBtn} ${statusFilter === s ? styles.filterActive : ''}`}
+              onClick={() => setStatusFilter(s)}
+            >
+              {s === 'ALL' ? 'Todos' : translateStatus(s)}
+              <span className={styles.filterCount}>
+                {s === 'ALL'
+                  ? allOrders.length
+                  : allOrders.filter((o) => o.status === s).length}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Lista de pedidos */}
+        {pageOrders.length === 0 ? (
+          <p className={styles.empty}>No hay pedidos con este estado.</p>
         ) : (
           <div className={styles.list}>
-            {orders.map((order) => (
+            {pageOrders.map((order) => (
               <div key={order.id} className={styles.card}>
                 <div className={styles.cardHeader}>
                   <span className={styles.orderId}>Pedido #{order.id}</span>
@@ -59,7 +104,7 @@ const AdminOrdersPage = () => {
                 <div className={styles.cardBody}>
                   <p><strong>Cliente:</strong> {order.customerName}</p>
                   <p><strong>Tipo:</strong> {order.orderType === 'DELIVERY' ? '🚚 Delivery' : '🏪 Pickup'}</p>
-                  <p><strong>Franja:</strong> {order.timeSlotDate} {formatTime(order.timeSlotStart)} - {formatTime(order.timeSlotEnd)}</p>
+                  <p><strong>Franja:</strong> {order.timeSlotDate} · {formatTime(order.timeSlotStart)} – {formatTime(order.timeSlotEnd)}</p>
                   {order.deliveryAddress && <p><strong>Dirección:</strong> {order.deliveryAddress}</p>}
                   <p><strong>Total:</strong> €{Number(order.totalAmount).toFixed(2)}</p>
                   <p><strong>Fecha:</strong> {formatDate(order.createdAt)}</p>
@@ -80,6 +125,48 @@ const AdminOrdersPage = () => {
             ))}
           </div>
         )}
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className={styles.pagination}>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setCurrentPage(1)}
+              disabled={safePage === 1}
+            >«</button>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={safePage === 1}
+            >‹</button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((p) => Math.abs(p - safePage) <= 2)
+              .map((p) => (
+                <button
+                  key={p}
+                  className={`${styles.pageBtn} ${p === safePage ? styles.pageBtnActive : ''}`}
+                  onClick={() => setCurrentPage(p)}
+                >{p}</button>
+              ))}
+
+            <button
+              className={styles.pageBtn}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={safePage === totalPages}
+            >›</button>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={safePage === totalPages}
+            >»</button>
+
+            <span className={styles.pageInfo}>
+              Página {safePage} de {totalPages}
+            </span>
+          </div>
+        )}
+
       </div>
     </div>
   );
