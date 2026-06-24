@@ -1,12 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useProducts from '../hooks/useProducts';
 import useAuth from '../hooks/useAuth';
 import { productApi } from '../api/productApi';
 import ProductCard from '../components/product/ProductCard';
+import ProductList from '../components/product/ProductList';
 import styles from './CatalogPage.module.css';
 
 const CatalogPage = () => {
-  const { isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const { isAdmin, isAuthenticated } = useAuth();
   const { products, isLoading, error, refetch } = useProducts(!isAdmin());
   const [categoryFilter, setCategoryFilter] = useState('all');
 

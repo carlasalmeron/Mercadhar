@@ -45,30 +45,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/api-docs/**",
-                                "/swagger-ui.html", "/webjars/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/timeslots/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,   "/api/products/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.PUT,    "/api/products/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.PATCH,  "/api/products/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.POST,   "/api/categories/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.PUT,    "/api/categories/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.POST,   "/api/timeslots/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.PUT,    "/api/timeslots/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/timeslots/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/api/orders/**").authenticated()
+                        .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html", "/webjars/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**", "/api/timeslots/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -81,7 +64,7 @@ public class SecurityConfig {
                 "http://localhost:5174"
         ));
         configuration.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 

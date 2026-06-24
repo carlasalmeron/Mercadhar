@@ -23,7 +23,10 @@ const Navbar = () => {
           <Link to="/catalog" className={styles.link}>Catálogo</Link>
 
           {isAuthenticated() && !isAdmin() && (
-            <Link to="/order" className={styles.link}>Hacer pedido</Link>
+            <>
+              <Link to="/order" className={styles.link}>Hacer pedido</Link>
+              <Link to="/my-orders" className={styles.link}>Mis pedidos</Link>
+            </>
           )}
 
           {isAdmin() && (

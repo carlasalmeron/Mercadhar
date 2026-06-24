@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { productApi } from '../api/productApi';
 import { timeSlotApi } from '../api/timeSlotApi';
 import { orderApi } from '../api/orderApi';
 import useProducts from '../hooks/useProducts';
 import ProductCard from '../components/product/ProductCard';
+import ProductList from '../components/product/ProductList';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import styles from './OrderPage.module.css';
@@ -13,11 +14,12 @@ const STEPS = ['Productos', 'Entrega', 'Confirmar'];
 
 const OrderPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { products, isLoading } = useProducts(true);
 
   const [step, setStep] = useState(0);
   const [cart, setCart] = useState([]);
-  const [orderType, setOrderType] = useState('PICKUP');
+  const [orderType, setOrderType] = useState('PICK_UP');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [timeSlots, setTimeSlots] = useState([]);
@@ -249,8 +251,8 @@ const OrderPage = () => {
                 <div className={styles.typeButtons}>
                   <button
                     className={`${styles.typeBtn}
-                      ${orderType === 'PICKUP' ? styles.typeBtnActive : ''}`}
-                    onClick={() => setOrderType('PICKUP')}
+                      ${orderType === 'PICK_UP' ? styles.typeBtnActive : ''}`}
+                    onClick={() => setOrderType('PICK_UP')}
                   >
                     🏪 Recoger en tienda
                   </button>
@@ -378,7 +380,7 @@ const OrderPage = () => {
                 <div className={styles.confirmSection}>
                   <h3>Entrega</h3>
                   <p>
-                    {orderType === 'PICKUP'
+                    {orderType === 'PICK_UP'
                       ? '🏪 Recogida en tienda'
                       : `🚚 Delivery a: ${deliveryAddress}`}
                   </p>
@@ -392,7 +394,7 @@ const OrderPage = () => {
 
                 <div className={styles.confirmSection}>
                   <h3>Pago</h3>
-                  <p>💵 Efectivo al {orderType === 'PICKUP'
+                  <p>💵 Efectivo al {orderType === 'PICK_UP'
                     ? 'recoger' : 'recibir'}</p>
                 </div>
 
