@@ -8,7 +8,7 @@ const STATUS_FILTERS = ['ALL', ...STATUS_OPTIONS];
 const PAGE_SIZE = 10;
 
 const AdminOrdersPage = () => {
-  const [allOrders, setAllOrders]   = useState([]);   // todos los pedidos en memoria
+  const [allOrders, setAllOrders]   = useState([]);
   const [isLoading, setIsLoading]   = useState(true);
   const [error, setError]           = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -18,8 +18,10 @@ const AdminOrdersPage = () => {
     setIsLoading(true);
     try {
       const { data } = await orderApi.getAll();
-      // Más reciente primero
-      const sorted = [...data].sort(
+
+      const orders = data.content ?? data;
+
+      const sorted = [...orders].sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       setAllOrders(sorted);
@@ -32,13 +34,11 @@ const AdminOrdersPage = () => {
 
   useEffect(() => { fetchOrders(); }, []);
 
-  // Volver a página 1 cuando cambia el filtro
   useEffect(() => { setCurrentPage(1); }, [statusFilter]);
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       await orderApi.updateStatus(orderId, newStatus);
-      // Actualiza solo el pedido afectado en memoria (sin refetch completo)
       setAllOrders((prev) =>
         prev.map((o) => o.id === orderId ? { ...o, status: newStatus } : o)
       );
@@ -47,7 +47,6 @@ const AdminOrdersPage = () => {
     }
   };
 
-  // ── Filtrado y paginación (solo en frontend) ──────────────
   const filtered = statusFilter === 'ALL'
     ? allOrders
     : allOrders.filter((o) => o.status === statusFilter);
@@ -63,13 +62,11 @@ const AdminOrdersPage = () => {
     <div className={styles.page}>
       <div className={styles.container}>
 
-        {/* Cabecera */}
         <div className={styles.header}>
           <h1 className={styles.title}>Gestión de pedidos</h1>
           <span className={styles.count}>{filtered.length} pedido{filtered.length !== 1 ? 's' : ''}</span>
         </div>
 
-        {/* Filtros de estado */}
         <div className={styles.filters}>
           {STATUS_FILTERS.map((s) => (
             <button
@@ -87,7 +84,6 @@ const AdminOrdersPage = () => {
           ))}
         </div>
 
-        {/* Lista de pedidos */}
         {pageOrders.length === 0 ? (
           <p className={styles.empty}>No hay pedidos con este estado.</p>
         ) : (
@@ -126,7 +122,6 @@ const AdminOrdersPage = () => {
           </div>
         )}
 
-        {/* Paginación */}
         {totalPages > 1 && (
           <div className={styles.pagination}>
             <button
