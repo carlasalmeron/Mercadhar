@@ -64,13 +64,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> origins = List.of(
+        List<String> originPatterns = List.of(
                 "http://localhost:5173",
                 "http://localhost:5174",
+                "http://localhost:5175",
+                "https://*.up.railway.app",
                 allowedOrigins
         );
-
-        configuration.setAllowedOrigins(origins);
+        
+        configuration.setAllowedOriginPatterns(originPatterns);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
