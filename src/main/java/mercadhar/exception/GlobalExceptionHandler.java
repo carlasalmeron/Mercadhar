@@ -49,9 +49,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
+        ex.printStackTrace(); // Logs the error in the Railway logs
+        String detailMessage = ex.getClass().getSimpleName() + ": " + ex.getMessage();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(buildError(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Internal server error"));
+                .body(buildError(HttpStatus.INTERNAL_SERVER_ERROR, detailMessage));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
